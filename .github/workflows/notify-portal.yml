@@ -1,0 +1,19 @@
+# In jedes Projekt-Repo nach .github/workflows/notify-portal.yml kopieren.
+# Secret PORTAL_DISPATCH_TOKEN: Fine-grained PAT mit Contents: write auf GSB-Deleven/portal.
+# Löst nur bei Pushes auf den Standard-Branch des Repos aus (egal, wie er heisst).
+name: Portal aktualisieren
+
+on:
+  push:
+
+jobs:
+  notify:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.PORTAL_DISPATCH_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/GSB-Deleven/portal/dispatches \
+            -d '{"event_type":"project-updated"}'
