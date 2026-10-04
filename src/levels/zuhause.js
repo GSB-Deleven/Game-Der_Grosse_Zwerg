@@ -17,14 +17,17 @@ export default {
     'T..,........::::::::::Ø......T',
     'T.....P.....:.........:......T',
     'T...........:...,.....:..~~~.T',
-    'T.:,..,.....@.........:.~~~~.T',
+    '1:::::::::::@.........:.~~~~.T',
     'T...........:.........:..~~..T',
     'T..T....?...:.........:......T',
     'T...........::::::::::::.,...T',
     'T..,.....*.......,......T....T',
     'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT',
   ],
-  ausgaenge: {},
+  ausgaenge: {
+    // Weg zurück ins Dorf (Zwergenfeste): dort warten die Häuser und die Mine
+    1: { karte: 'dorf', ziel: 2, aussehen: 'weg' },
+  },
   figuren: {
     d: {
       name: 'Füürio',

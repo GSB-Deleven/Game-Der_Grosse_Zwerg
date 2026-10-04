@@ -136,6 +136,14 @@ ausgaenge: {
 ```
 `weiter: true` sagt dem Pfeil, dass es hier im Kapitel weitergeht. `aussehen` kann `'weg'` (kein Bild),
 `'hoehleneingang'` oder `'schlosstor'` sein; ohne Angabe wird in Mauern eine Holztür gezeichnet.
+`nurWennFertig: true`: Der Weg ist erst offen, wenn das ganze Spiel geschafft ist (z. B. Dorf → Zuhause der Ehrengarde).
+
+**Begehbare Häuser:** Das untere mittlere Feld eines Hauses im Dorf wird eine Ziffer mit `aussehen: 'weg'`
+(die Tür ist schon im Hausbild). Innen kommt man durch eine eigene Ziffer zurück, mit `ziel` = Ziffer der Haustür.
+Vorbild: `src/levels/haus_kueche.js`. Möbel-Zeichen (siehe `legende.js`): `β` Bett, `τ` Tisch, `σ` Stuhl,
+`η` Herd (gibt Tee), `ς` Schrank (gibt Kochtopf), `κ` Kamin, `χ` Kleiderhaken (gibt Jacke), `ω` Wiege,
+`θ` Teddy-Platz (gibt Teddy), `π` Schaukelstuhl, `φ` Fenster. Für Minen: `ρ` Schienen, `λ` Lore, `ϑ` Stützbalken,
+`ψ` Kristall (gibt Kristall).
 
 ## 5. Ereignisse (Drehbücher)
 ```js
@@ -176,6 +184,13 @@ leben: {
 ## 7. Level anmelden
 In `src/levels/index.js` die Datei importieren, bei `KARTEN` eintragen und beim passenden Kapitel unter `karten`.
 Ein Kapitel ist geschafft, wenn **alle Wünsche** auf allen seinen Karten erfüllt sind; dann läuft sein `wennFertig`.
+**Freiwillige Orte:** Karten unter `zusatz` beim Kapitel (z. B. Häuser und Mine im Dorf) und Figuren mit
+`zusatz: true` zählen **nicht** fürs Kapitel-Ende, aber für die Herzen am Ort. Der Pfeil zeigt zuerst die
+Pflicht-Aufgaben und die Geschichte; freiwillige Orte erst, wenn das Spiel geschafft ist (Ehrengarde).
+Aufgaben über eine Tür hinweg gehen von selbst: Wunsch draussen (`wunsch: 'jacke'`), Quelle drinnen – der Pfeil führt durch die Tür.
+**Spielstand:** Buchstaben bestehender Figuren nie umbenennen (sonst gehen erfüllte Wünsche verloren), neue Figuren
+bekommen neue Buchstaben.
+
 Coole Momente mit Splash stehen unter `meilensteine` (`{ herzen: 1 }`, `{ wunsch: 'frucht' }`, `{ figuren: ['see:a'] }`).
 
 ## 8. Neue Mission für die Ehrengarde (Kapitel 6)
@@ -195,3 +210,4 @@ Nach dem Abspann wählt man Missionen am Missionsbrett. So kommt eine neue dazu:
 - `npm run pruefen` – findet Tippfehler und unerreichbare Figuren
 - `npm run dev` und im Browser `?kapitel=3` anhängen, um direkt ins Kapitel zu springen
 - `KAPITEL=3 node tests/durchlauf.mjs` – spielt das Kapitel automatisch durch
+- `node tests/zusatz.mjs` – lädt einen Ehrengarde-Spielstand und spielt Häuser und Mine dem Pfeil nach durch

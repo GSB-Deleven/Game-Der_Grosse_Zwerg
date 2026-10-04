@@ -15,6 +15,7 @@ export class Oberflaeche extends Phaser.Scene {
     this.steuerZonen = [];
     this.baueHerzen();
     this.setzeHerzen(this.registry.get('stand')?.herzen || 0);
+    this.setzeOrtHerzen(this.registry.get('ortHerzen'));
     this.baueSprechfeld();
     this.baueMenueKnopf();
 
@@ -37,14 +38,18 @@ export class Oberflaeche extends Phaser.Scene {
     const ev = this.game.events;
     ev.on('herzen', this.setzeHerzen, this);
     ev.on('herzFliegt', this.herzFliegt, this);
+    ev.on('ortHerzen', this.setzeOrtHerzen, this);
     ev.on('sprechen', this.zeigeText, this);
+    ev.on('sprechfeldWeg', this.versteckeText, this);
     ev.on('traegt', this.zeigeGetragen, this);
     ev.on('ortBanner', this.zeigeOrt, this);
     ev.on('einstellungen', this.neueEinstellungen, this);
     this.events.once('shutdown', () => {
       ev.off('herzen', this.setzeHerzen, this);
       ev.off('herzFliegt', this.herzFliegt, this);
+      ev.off('ortHerzen', this.setzeOrtHerzen, this);
       ev.off('sprechen', this.zeigeText, this);
+      ev.off('sprechfeldWeg', this.versteckeText, this);
       ev.off('traegt', this.zeigeGetragen, this);
       ev.off('ortBanner', this.zeigeOrt, this);
       ev.off('einstellungen', this.neueEinstellungen, this);
@@ -71,6 +76,7 @@ export class Oberflaeche extends Phaser.Scene {
     const rechts = this.einstellungen?.kreuz !== 'links'; // Standard: Steuerkreuz rechts
     const hochkant = H > B;
     this.herzBox.setPosition(l, o);
+    if (this.ortHerzen) this.setzeOrtHerzen(this.ortHerzen); // Reihenlänge hängt von hochkant/quer ab
     this.menueKnopf.setPosition(B - 30 - re, 40 + o);
 
     // Sprechfeld: neben den Herzen, hochkant darunter und verkleinert
@@ -97,31 +103,55 @@ export class Oberflaeche extends Phaser.Scene {
     this.aktionsKnopf.setPosition(knopfX, knopfY);
   }
 
-  // ---- Herzen oben links ----------------------------------------------------
+  // ---- Herzen oben links: so viele leere Herzen, wie es an diesem Ort zu verdienen gibt ----
   baueHerzen() {
-    this.herzBox = this.add.container(0, 0);
+    this.herzBox = this.add.container(0, 0).setVisible(false);
     this.herzHintergrund = this.add.graphics();
-    this.herzBild = this.add.image(50, 44, 'herz').setScale(3);
-    this.herzText = this.add.text(86, 46, '0', zahlStil(28)).setOrigin(0, 0.5);
-    this.herzBox.add([this.herzHintergrund, this.herzBild, this.herzText]);
+    this.herzReihe = this.add.container(0, 0);
+    this.herzBox.add([this.herzHintergrund, this.herzReihe]);
+    this.ortHerzen = { max: 0, voll: 0 };
   }
 
-  setzeHerzen(n) {
-    this.herzAnzahl = n;
-    this.herzText.setText(String(n));
-    // Kasten wächst mit der Zahl (1, 12, 123 Herzen)
-    const breite = Math.max(128, 86 + this.herzText.width + 18);
-    this.herzHintergrund.clear().fillStyle(0x1b1420, 0.7).fillRoundedRect(12, 12, breite - 12, 64, 16);
+  // Gesamtzahl (für Meilensteine usw.) – angezeigt werden die Herzen dieses Ortes
+  setzeHerzen(n) { this.herzAnzahl = n; }
+
+  herzPlatz(i) {
+    const proReihe = this.scale.height > this.scale.width ? 10 : 8;
+    return { x: 36 + (i % proReihe) * 30, y: 40 + Math.floor(i / proReihe) * 30, proReihe };
   }
 
-  herzFliegt({ x, y, herzen }) {
+  setzeOrtHerzen(ort) {
+    this.ortHerzen = ort || { max: 0, voll: 0 };
+    const { max, voll } = this.ortHerzen;
+    this.herzReihe.removeAll(true);
+    this.herzBox.setVisible(max > 0);
+    if (!max) return;
+    for (let i = 0; i < max; i++) {
+      const p = this.herzPlatz(i);
+      this.herzReihe.add(this.add.image(p.x, p.y, i < voll ? 'herz' : 'herz_leer').setScale(2));
+    }
+    const { proReihe } = this.herzPlatz(0);
+    const reihen = Math.ceil(max / proReihe);
+    const breite = 24 + Math.min(max, proReihe) * 30;
+    this.herzHintergrund.clear().fillStyle(0x1b1420, 0.7).fillRoundedRect(12, 12, breite, 26 + reihen * 30, 16);
+  }
+
+  herzFliegt({ x, y, herzen, ort }) {
+    const ziel = ort && ort.max ? this.herzPlatz(Math.max(0, ort.voll - 1)) : { x: 36, y: 40 };
     const h = this.add.image(x, y, 'herz').setScale(3);
     this.tweens.add({
-      targets: h, x: this.herzBox.x + this.herzBild.x, y: this.herzBox.y + this.herzBild.y, scale: 3, duration: 700, ease: 'Cubic.easeIn',
+      targets: h, x: this.herzBox.x + ziel.x, y: this.herzBox.y + ziel.y, scale: 2, duration: 700, ease: 'Cubic.easeIn',
       onComplete: () => {
         h.destroy();
         this.setzeHerzen(herzen);
-        this.tweens.add({ targets: this.herzBild, scale: 4.2, duration: 120, yoyo: true });
+        if (!ort) return;
+        this.setzeOrtHerzen(ort);
+        const neu = this.herzReihe.list[ort.voll - 1];
+        if (neu) this.tweens.add({ targets: neu, scale: 3, duration: 140, yoyo: true });
+        // Alle voll: die ganze Reihe hüpft nacheinander
+        if (ort.voll >= ort.max) {
+          this.herzReihe.list.forEach((herz, i) => this.tweens.add({ targets: herz, y: herz.y - 8, duration: 160, yoyo: true, delay: 300 + i * 70 }));
+        }
       },
     });
   }
@@ -148,9 +178,15 @@ export class Oberflaeche extends Phaser.Scene {
     this.portraitRahmen.clear().fillStyle(0x3a3048, 1).fillRoundedRect(-360, 10, 76, 80, 10);
     if (bild && this.textures.exists(bild)) {
       const f = this.textures.get(bild).getSourceImage();
-      const skala = Math.min(2.4, 72 / f.width);
-      this.portrait.setTexture(bild).setOrigin(0.5, 0).setCrop(0, 0, f.width, Math.min(f.height, 28)).setVisible(true);
-      this.portrait.setScale(skala).setPosition(-322, 14);
+      // Ausschnitt um den Kopf: kleine Figuren die obersten 28 Pixel, grosse (Drache) ein Quadrat oben in der Mitte
+      const gross = f.width > 40;
+      const b = gross ? Math.round(Math.min(f.width, f.height * 0.6)) : f.width;
+      const h = gross ? b : Math.min(f.height, 28);
+      const x0 = Math.round((f.width - b) / 2);
+      const skala = Math.min(2.4, 72 / b, 76 / h);
+      this.portrait.setTexture(bild).setOrigin(0.5, 0).setCrop(x0, 0, b, h).setVisible(true);
+      // bei setCrop bleibt der Ursprung auf das ganze Bild bezogen: Mitte des Ausschnitts auf die Rahmenmitte schieben
+      this.portrait.setScale(skala).setPosition(-322 - (x0 + b / 2 - f.width / 2) * skala, 14);
     } else this.portrait.setVisible(false);
     this.sprechfeld.setVisible(true).setAlpha(1);
     this.textZeit?.remove();
@@ -164,6 +200,14 @@ export class Oberflaeche extends Phaser.Scene {
     this.textZeit = this.time.delayedCall(sprechDauer(text) + 400, () => {
       this.tweens.add({ targets: this.sprechfeld, alpha: 0, duration: 400, onComplete: () => this.sprechfeld.setVisible(false) });
     });
+  }
+
+  // Sprechfeld sofort ausblenden (z. B. damit man die Drachenaugen sieht)
+  versteckeText() {
+    this.textZeit?.remove();
+    this.schreiber?.remove();
+    this.tweens.killTweensOf(this.sprechfeld);
+    this.tweens.add({ targets: this.sprechfeld, alpha: 0, duration: 250, onComplete: () => this.sprechfeld.setVisible(false) });
   }
 
   // ---- Orts-Banner (wie bei Zelda) ------------------------------------------

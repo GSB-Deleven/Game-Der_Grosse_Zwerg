@@ -9,7 +9,8 @@ export function starteKapitel(scene, { mitIntro = true } = {}) {
   if (stand.fertig && stand.kapitel < 6) { stand.kapitel = 6; stand.ort = null; stand.traegt = null; }
   const kapitel = KAPITEL[stand.kapitel] || KAPITEL[1];
   stand.geschichten = stand.geschichten || (stand.introGesehen ? ['intro'] : []);
-  const ort = stand.ort && kapitel.karten.includes(stand.ort.karte) ? stand.ort : null;
+  // Auch in freiwilligen Orten (zusatz) dort weiterspielen, wo man aufgehört hat
+  const ort = stand.ort && kapitel.karten.concat(kapitel.zusatz || []).includes(stand.ort.karte) ? stand.ort : null;
   let weiter;
   if (ort) weiter = { szene: 'Welt', daten: { karte: ort.karte, pos: ort } };
   else if (kapitel.startSzene) weiter = { szene: kapitel.startSzene, daten: {} };

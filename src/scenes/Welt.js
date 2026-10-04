@@ -88,6 +88,7 @@ export class Welt extends Phaser.Scene {
     if (!this.scene.isActive('Oberflaeche')) this.scene.launch('Oberflaeche');
     this.scene.bringToTop('Oberflaeche');
     this.game.events.emit('herzen', this.stand.herzen);
+    this.meldeOrtHerzen();
     this.game.events.emit('traegt', this.traegt);
 
     this.pfeil = this.add.image(0, 0, 'pfeil').setDepth(100000).setVisible(false);
@@ -191,14 +192,18 @@ export class Welt extends Phaser.Scene {
       for (let x = 0; x < this.breite; x++) {
         const z = this.zeilen[y][x];
         const eintrag = LEGENDE[z];
-        const fest = !!eintrag?.fest;
+        let fest = !!eintrag?.fest;
         if (/[a-z]/.test(z) && figuren[z]) spaeter.push([z, x, y]);
         else if (/[1-9]/.test(z)) {
           const a = { x, y, nummer: z, ...(ausgaenge[z] || {}) };
           const inWand = this.istWand(x - 1, y) || this.istWand(x + 1, y);
-          if (a.aussehen === 'weg') { /* offener Weg, kein Bild */ } else if (a.aussehen) this.add.image(x * KACHEL + 8, (y + 1) * KACHEL, `obj_${a.aussehen}`).setOrigin(0.5, 1).setDepth(-50);
-          else if (inWand) this.add.image(x * KACHEL, y * KACHEL, 'obj_tuer').setOrigin(0, 0).setDepth(-50);
-          this.ausgangsFelder.push(a);
+          // nurWennFertig: dieser Weg ist erst offen, wenn das Spiel geschafft ist (z. B. Dorf -> Zuhause)
+          if (a.nurWennFertig && !this.stand.fertig) fest = true;
+          else {
+            if (a.aussehen === 'weg') { /* offener Weg, kein Bild */ } else if (a.aussehen) this.add.image(x * KACHEL + 8, (y + 1) * KACHEL, `obj_${a.aussehen}`).setOrigin(0.5, 1).setDepth(-50);
+            else if (inWand) this.add.image(x * KACHEL, y * KACHEL, 'obj_tuer').setOrigin(0, 0).setDepth(-50);
+            this.ausgangsFelder.push(a);
+          }
         } else if (z === '0') {
           this.ausloeserFelder.push({ x, y });
         } else if (eintrag?.start) {
@@ -1132,6 +1137,9 @@ export class Welt extends Phaser.Scene {
     this.held.setVelocity(0, 0);
     this.stand.ort = null;
     this.stand.traegt = this.traegt || null;
+    // Wunsch von hier mitnehmen (z. B. Torvi draussen will die Jacke von drinnen): der Pfeil zeigt dort zur Quelle
+    const lw = this.letzterWunsch;
+    if (lw?.id && !this.istErfuellt(lw.id) && this.wunschVon(lw).wunsch) this.registry.set('fremderWunsch', { id: lw.id, wunsch: this.wunschVon(lw).wunsch });
     sichere(this.registry);
     this.cameras.main.fadeOut(300);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart({ karte: a.karte, ziel: a.ziel }));
@@ -1454,7 +1462,9 @@ export class Welt extends Phaser.Scene {
         const cam = this.cameras.main;
         const bx = (herz.x - cam.worldView.x) * cam.zoom, by = (herz.y - cam.worldView.y) * cam.zoom;
         herz.destroy();
-        this.game.events.emit('herzFliegt', { x: bx, y: by, herzen: this.stand.herzen });
+        const ort = this.ortHerzen();
+        this.registry.set('ortHerzen', ort);
+        this.game.events.emit('herzFliegt', { x: bx, y: by, herzen: this.stand.herzen, ort });
       },
     });
 
@@ -1602,6 +1612,11 @@ export class Welt extends Phaser.Scene {
   async zeigeAugen({ figur, dauer = 2500 }) {
     const f = this.figuren.find((x) => x.buchstabe === figur);
     const x = f ? f.bild.x : this.held.x, y = f ? f.bild.y - f.bild.height * 0.7 : this.held.y - 60;
+    // Sprechfeld weg und Kamera zu den Augen (sie lagen sonst ausserhalb des Bildes oder unter dem Text)
+    this.game.events.emit('sprechfeldWeg');
+    const cam = this.cameras.main;
+    cam.stopFollow();
+    cam.pan(x, y + 45, 800, 'Sine.easeInOut');
     const augen = this.add.image(x, y, 'drachenaugen').setDepth(99990).setAlpha(0).setScale(0.6);
     this.tweens.add({ targets: augen, alpha: 1, scale: 1, duration: 900 });
     this.time.addEvent({ delay: 1400, repeat: 2, callback: () => { augen.setScale(1, 0.1); this.time.delayedCall(120, () => augen.setScale(1)); } });
@@ -1609,6 +1624,13 @@ export class Welt extends Phaser.Scene {
     this.cameras.main.shake(700, 0.004);
     await new Promise((r) => setTimeout(r, dauer));
     this.tweens.add({ targets: augen, alpha: 0, duration: 800, delay: 1500, onComplete: () => augen.destroy() });
+    // danach zurück zum Helden
+    this.time.delayedCall(2400, () => {
+      if (!this.held) return;
+      cam.pan(this.held.x, this.held.y - 20, 700, 'Sine.easeInOut', false, (c, fortschritt) => {
+        if (fortschritt === 1) cam.startFollow(this.held, true, 0.1, 0.1, 0, 20);
+      });
+    });
   }
 
   // Eine Figur läuft ins Bild (für Zwischenszenen)
@@ -1643,12 +1665,36 @@ export class Welt extends Phaser.Scene {
   // -------------------------------------------------------------------------
   istErfuellt(id) { return this.stand.erfuellt.includes(id); }
 
-  alleWuensche() {
+  // Herzen an diesem Ort: jede Figur/Baustelle mit Wunsch = 1 Herz, mit mehreren Wünschen = so viele Herzen
+  ortHerzen() {
+    let max = 0, voll = 0;
+    const gesehen = new Set();
+    for (const d of this.figuren.concat(this.dinge.filter((x) => x.baustelle))) {
+      if (!d.id || gesehen.has(d.id) || !(d.daten?.wunsch || d.daten?.wuensche)) continue;
+      gesehen.add(d.id);
+      const n = d.daten.wuensche ? d.daten.wuensche.length : 1;
+      max += n;
+      voll += this.istErfuellt(d.id) ? n : (d.daten.wuensche ? Math.min(n, this.stand.fortschritt[d.id] || 0) : 0);
+    }
+    return { max, voll };
+  }
+
+  meldeOrtHerzen() {
+    const ort = this.ortHerzen();
+    this.registry.set('ortHerzen', ort);
+    this.game.events.emit('ortHerzen', ort);
+  }
+
+  // Alle Wünsche des Kapitels. mitZusatz: auch freiwillige Orte (kapitel.zusatz) und freiwillige Aufgaben
+  alleWuensche({ mitZusatz = false } = {}) {
     const liste = [];
-    for (const name of this.kapitel.karten) {
+    const karten = mitZusatz ? this.kapitel.karten.concat(this.kapitel.zusatz || []) : this.kapitel.karten;
+    for (const name of karten) {
       const k = KARTEN[name];
+      if (!k) continue;
       const zeilen = k.karte.join('');
       for (const [b, f] of Object.entries(k.figuren || {})) {
+        if (f.zusatz && !mitZusatz) continue; // freiwillig: zählt nicht fürs Kapitel-Ende
         if ((f.wunsch || f.wuensche) && zeilen.includes(b)) liste.push({ id: `${name}:${b}`, karte: name, wunsch: f.wunsch || f.wuensche.at(-1).wunsch });
       }
     }
@@ -1689,7 +1735,9 @@ export class Welt extends Phaser.Scene {
       if (this.letzterWunsch && this.wunschVon(this.letzterWunsch).wunsch === this.traegt && !this.istErfuellt(this.letzterWunsch.id)) return ziel(this.letzterWunsch);
       const passend = naechste(offen.filter((d) => this.wunschVon(d).wunsch === this.traegt));
       if (passend) return ziel(passend);
-      return this.ausgangZu((w) => w.wunsch === this.traegt);
+      const tuer = this.ausgangZu((w) => w.wunsch === this.traegt, null, false, true);
+      if (tuer) return tuer;
+      // niemand braucht das Getragene mehr: einfach mit der nächsten Aufgabe weitermachen (es wird ausgetauscht)
     }
     const lw = this.letzterWunsch && this.wunschVon(this.letzterWunsch).wunsch;
     if (lw === 'huehner' && !this.istErfuellt(this.letzterWunsch.id)) {
@@ -1707,14 +1755,26 @@ export class Welt extends Phaser.Scene {
       if (quelle) return ziel(quelle);
       return this.ausgangZu(null, lw);
     }
-    const n = naechste(offen);
+    // Wunsch von einem anderen Ort mitgebracht? Dann zur Quelle hier (falls es eine gibt)
+    const fremd = this.registry.get('fremderWunsch');
+    if (!lw && fremd && !this.istErfuellt(fremd.id) && this.traegt !== fremd.wunsch) {
+      const quelle = naechste(this.dinge.filter((d) => d.typ === 'quelle' && d.gibt === fremd.wunsch));
+      if (quelle) return ziel(quelle);
+    }
+    // Pflicht-Aufgaben zuerst, freiwillige (zusatz) danach
+    const pflicht = offen.filter((d) => !d.daten?.zusatz);
+    const n = naechste(pflicht.length ? pflicht : offen);
     if (n) return ziel(n);
     // Noch ein Ereignis-Feld offen (z.B. tiefer in die Höhle)?
     if (this.ausloeserFelder.length && this.karte.ereignisse?.ausloeser && !this.ereignisErledigt('ausloeser')) {
       const a = this.ausloeserFelder[0];
       return { x: a.x * KACHEL + 8, y: (a.y + 1) * KACHEL, hoch: 14, feld: a };
     }
-    return this.ausgangZu(() => true) || this.ausgangZu(null, null, true) || this.brettZiel();
+    // Danach: Wege zu Pflicht-Aufgaben, Missionsbrett, dann weiter in der Geschichte – freiwillige Orte erst,
+    // wenn das Spiel geschafft ist (sonst lockt der Pfeil die Kinder von der Geschichte weg)
+    const zusatz = () => this.ausgangZu(() => true, null, false, true);
+    const weiter = () => this.ausgangZu(null, null, true);
+    return this.ausgangZu(() => true) || this.brettZiel() || (this.stand.fertig ? zusatz() || weiter() : weiter() || zusatz());
   }
 
   // Zuhause: der Pfeil zeigt zum Missionsbrett, solange es offene Missionen gibt
@@ -1740,14 +1800,19 @@ export class Welt extends Phaser.Scene {
   }
 
   // Tür zu einer Karte, auf der es einen passenden Wunsch (oder eine Quelle) gibt
-  ausgangZu(passt, quelleFuer, weiterImKapitel = false) {
+  ausgangZu(passt, quelleFuer, weiterImKapitel = false, mitZusatz = false) {
     for (const a of this.ausgangsFelder) {
       if (!a.karte) continue;
       const k = KARTEN[a.karte];
       let treffer = false;
       if (weiterImKapitel) treffer = a.weiter === true;
       else if (quelleFuer) treffer = k.karte.some((z) => [...z].some((c) => LEGENDE[c]?.gibt === quelleFuer));
-      else treffer = this.alleWuensche().some((w) => w.karte === a.karte && !this.istErfuellt(w.id) && passt(w));
+      else {
+        // freiwillige Orte: auch eine Tür weiter schauen (Zuhause -> Dorf -> Haus)
+        const karten = new Set([a.karte]);
+        if (mitZusatz) Object.values(k.ausgaenge || {}).forEach((b) => b.karte !== this.kartenName && karten.add(b.karte));
+        treffer = this.alleWuensche({ mitZusatz }).some((w) => karten.has(w.karte) && !this.istErfuellt(w.id) && passt(w));
+      }
       if (treffer) return { x: a.x * KACHEL + KACHEL / 2, y: (a.y + 1) * KACHEL, hoch: 16, feld: a };
     }
     return null;

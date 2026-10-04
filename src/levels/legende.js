@@ -88,4 +88,23 @@ export const LEGENDE = {
   'Ð': { fest: true, objekt: 'stammhaufen', gibt: 'holz' },
   'Ç': { boden: 'wasser', fest: true },                             // überflutete Wiese
   'Ŧ': { boden: 'wasser', objekt: 'dammstamm', flach: true, schatten: false }, // Damm aus Baumstämmen – begehbar
+
+  // Einrichtung der Häuser im Dorf (Innenräume)
+  'β': { boden: 'holzboden', fest: true, objekt: 'bett', hoehe: 2 },
+  'τ': { boden: 'holzboden', fest: true, objekt: 'tisch', breite: 2 },
+  'σ': { boden: 'holzboden', fest: true, objekt: 'stuhl' },
+  'η': { boden: 'holzboden', fest: true, objekt: 'herd', gibt: 'tee', licht: [[0, -10]], leuchtet: 30 },
+  'ς': { boden: 'holzboden', fest: true, objekt: 'schrank', gibt: 'topf' },
+  'κ': { boden: 'holzboden', fest: true, objekt: 'kamin', breite: 2, flamme: [0, -8], licht: [[0, -10]], leuchtet: 55 },
+  'χ': { boden: 'holzboden', fest: true, objekt: 'kleiderhaken', gibt: 'jacke' },
+  'ω': { boden: 'holzboden', fest: true, objekt: 'wiege' },
+  'θ': { boden: 'holzboden', fest: true, objekt: 'teddyplatz', gibt: 'teddy' },
+  'π': { boden: 'holzboden', fest: true, objekt: 'schaukelstuhl' },
+  'φ': { boden: 'felswand', fest: true, objekt: 'fenster', flach: true, schatten: false }, // Fenster in der Wand
+
+  // Die Zwergenmine
+  'ρ': { boden: 'schiene' },                                               // Gleis – begehbar
+  'λ': { fest: true, objekt: 'lore', breite: 2 },
+  'ϑ': { fest: true, objekt: 'balken', hoehe: 2 },
+  'ψ': { fest: true, objekt: 'kristall', gibt: 'kristall', leuchtet: 38 },
 };

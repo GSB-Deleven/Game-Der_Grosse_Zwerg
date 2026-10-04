@@ -37,6 +37,9 @@ const R = {
   tanne: ['#173d2a', '#2a6040', '#4a8a58'],
   laub: ['#1e4a2a', '#2f7040', '#58a05a'],
   dachHolz: ['#5a2e16', '#7a4020', '#a0582e'],
+  jacke: ['#2a5a2a', '#3f8a44', '#74c26c'],
+  decke: ['#3a5a9a', '#5a82c8', '#9ac0f0'],
+  teddy: ['#6a4022', '#9a6438', '#c89060'],
   heu: ['#a8862b', '#e0c050', '#fff0a0'],
   wasser: ['#2a5a96', '#3d74b8', '#79aee6'],
   stoffRot: ['#8a2626', '#c8403a', '#f07060'],
@@ -219,6 +222,13 @@ export function maleBoden(scene, key, boden) {
             if (px === 3 || px === 12) c = rgb('#8a6a3a');
             if ((py % 5 === 2) && px > 3 && px < 12) c = rgb('#b8905a');
             if ((py % 5 === 3) && px > 3 && px < 12) c = rgb('#5e4428');
+          } else if (t === 'schiene') {
+            // Minen-Gleis: Höhlenboden, Holzschwellen, zwei Stahlschienen
+            const p = pflaster(x, y, 7);
+            c = p.rand ? rgb('#241a26') : (p.id < 0.5 ? rgb('#3a2e3c') : rgb('#46384a'));
+            if (x % 5 < 2 && py > 2 && py < 14) c = FARBEN.brett[x % 5 ? 2 : 4];
+            if (py === 4 || py === 11) c = rgb('#c8d0d8');
+            if (py === 5 || py === 12) c = rgb('#5c6672');
           } else if (t === 'sand') {
             const n = rauschen(x / 4, y / 4, 26);
             const rippel = Math.sin(x * 0.35 + y * 0.9 + rauschen(x / 8, y / 8, 46) * 5);
@@ -489,6 +499,48 @@ function mauerwerk(t, rampe, x0, y0, x1, y1, { hoehe = 5, breite = 8 } = {}) {
   }
 }
 
+// Aufgewickeltes Seil: Ring aus gedrehten Strängen (schräge helle/dunkle Streifen), dunkles Loch in der Mitte
+// und ein heraushängendes Ende – damit es nicht wie ein Ball aussieht
+const SEIL = ['#6e5430', '#a8844e', '#d2b07a'];
+function seilRolle(t, cx, cy, ra, ri, { flach = 0.72, ende = null } = {}) {
+  // Windungen als einzelne Ringe mit Lücken dazwischen (so erkennt man auch klein ein Seil)
+  const ringe = [];
+  for (let r = ra - 1; r >= ri; r -= 2.4) ringe.push(r);
+  for (let y = Math.floor(cy - ra); y <= Math.ceil(cy + ra); y++) {
+    for (let x = Math.floor(cx - ra); x <= Math.ceil(cx + ra); x++) {
+      const dx = x + 0.5 - cx, dy = (y + 0.5 - cy) / flach;
+      const d = Math.hypot(dx, dy);
+      const ring = ringe.find((r) => Math.abs(d - r) < 0.85);
+      if (ring === undefined) continue;
+      const winkel = Math.atan2(dy, dx);
+      let v = 2.4 - (dy > 0 ? 0.7 : 0) + (dx < 0 && dy < 0 ? 0.7 : 0) - (d - ring) * 0.6;
+      if (((winkel / (Math.PI * 2)) * Math.max(6, ring * 2.2)) % 1 < 0.4) v -= 1; // gedrehte Stränge
+      t.setze(x, y, stufe(SEIL, v));
+    }
+  }
+  if (ende) {
+    // Seilende: zwei Pixel dick, abwechselnd hell/dunkel, mit ausgefranster Spitze
+    const [[x0, y0], [x1, y1]] = ende;
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 0; i <= n; i++) {
+      const x = Math.round(x0 + ((x1 - x0) * i) / n), y = Math.round(y0 + ((y1 - y0) * i) / n);
+      t.setze(x, y, stufe(SEIL, i % 3 === 0 ? 1 : 2.6));
+      t.setze(x, y + 1, stufe(SEIL, i % 3 === 1 ? 1 : 1.8));
+    }
+    t.setze(x1 + 1, y1 + 1, stufe(SEIL, 3)); t.setze(x1 + 1, y1, stufe(SEIL, 2));
+  }
+}
+
+// Teddybär (für Baby Fili)
+function teddy(t, cx, cy) {
+  for (const [x, y] of [[-3, -5], [3, -5]]) ellipse(t, cx + x, cy + y, 1.6, 1.6, R.teddy);
+  ellipse(t, cx, cy - 3, 3.4, 3, R.teddy);
+  ellipse(t, cx, cy + 2.5, 3.6, 3.6, R.teddy);
+  for (const [x, y] of [[-4, 1], [4, 1], [-2.5, 5.5], [2.5, 5.5]]) ellipse(t, cx + x, cy + y, 1.5, 1.5, R.teddy);
+  t.setze(cx - 1, cy - 4, UMRISS); t.setze(cx + 1, cy - 4, UMRISS); t.setze(cx, cy - 2, '#3a2010');
+  ellipse(t, cx, cy + 2.5, 1.8, 1.8, ['#c89060', '#e0b080', '#f4d4a8']);
+}
+
 // ---------------------------------------------------------------------------
 // OBJEKTE (Gebäude und Deko)
 // ---------------------------------------------------------------------------
@@ -702,7 +754,7 @@ const OBJEKTE = {
   }),
   seilkiste: () => mach(18, 18, (e) => {
     teil(e, (t) => { rechteck(t, 1, 7, 16, 10, RAMPEN.holz); for (let x = 1; x < 17; x++) t.setze(x, 11, RAMPEN.holz[0]); });
-    teil(e, (t) => { ellipse(t, 9, 6, 6, 3.5, RAMPEN.beige); ellipse(t, 9, 6, 3, 1.5, RAMPEN.beige, { licht: -0.8 }); });
+    teil(e, (t) => seilRolle(t, 9, 6, 6.5, 2.2, { flach: 0.6, ende: [[14, 8], [16, 13]] }));
   }),
   heuhaufen: () => mach(22, 18, (e) => {
     teil(e, (t) => { ellipse(t, 11, 12, 10, 6, R.heu); ellipse(t, 11, 8, 7, 5, R.heu); for (let i = 0; i < 12; i++) t.setze(3 + i * 1.5, 9 + (i % 3) * 2, R.heu[0]); });
@@ -826,6 +878,71 @@ const OBJEKTE = {
     for (const bx of [30, 76]) teil(e, (t) => { vieleck(t, [[bx - 5, 44], [bx + 5, 44], [bx + 5, 66], [bx, 62], [bx - 5, 66]], R.stoffRot); t.setze(bx, 52, '#f2c94c'); t.setze(bx, 53, '#f2c94c'); });
   }),
 
+  // --- Einrichtung der Häuser im Dorf
+  bett: () => mach(16, 34, (e) => {
+    teil(e, (t) => { rechteck(t, 1, 2, 14, 31, RAMPEN.holz); bretter(t, RAMPEN.holz, 1, 2, 14, 32, { senkrecht: true, breite: 7 }); });
+    teil(e, (t) => { rechteck(t, 2, 12, 12, 19, R.stoffRot); for (let y = 14; y < 31; y += 4) for (let x = 2; x < 14; x++) if ((x + y) % 4 === 0) t.setze(x, y, stufe(R.stoffRot, 3)); });
+    teil(e, (t) => { rechteck(t, 3, 4, 10, 7, RAMPEN.weiss, { rund: 2 }); });
+  }),
+  tisch: () => mach(32, 22, (e) => {
+    teil(e, (t) => { rechteck(t, 3, 12, 3, 9, RAMPEN.holz); rechteck(t, 26, 12, 3, 9, RAMPEN.holz); });
+    teil(e, (t) => { rechteck(t, 1, 5, 30, 8, RAMPEN.holz); bretter(t, RAMPEN.holz, 1, 5, 30, 12, { breite: 3 }); });
+    teil(e, (t) => { ellipse(t, 10, 7, 4, 1.8, RAMPEN.weiss); ellipse(t, 21, 7, 2.5, 2, ['#8a4a20', '#c87a3a', '#f0b070']); });
+  }),
+  stuhl: () => mach(14, 18, (e) => {
+    teil(e, (t) => { rechteck(t, 2, 10, 2, 7, RAMPEN.holz); rechteck(t, 10, 10, 2, 7, RAMPEN.holz); rechteck(t, 2, 1, 10, 3, RAMPEN.holz); rechteck(t, 2, 1, 2, 9, RAMPEN.holz); rechteck(t, 10, 1, 2, 9, RAMPEN.holz); });
+    teil(e, (t) => { rechteck(t, 1, 8, 12, 3, RAMPEN.holz, { licht: 0.4 }); });
+  }),
+  herd: () => mach(18, 28, (e) => { // Steinherd mit Feuer und Teekanne obendrauf
+    teil(e, (t) => { rechteck(t, 1, 10, 16, 17, R.stein); mauerwerk(t, R.stein, 1, 10, 16, 26, { hoehe: 4, breite: 6 }); rechteck(t, 4, 17, 10, 7, RAMPEN.schwarz, { rund: 2 }); });
+    const g = new Ebene(18, 28);
+    for (let x = 5; x < 13; x++) for (let y = 19; y < 24; y++) g.setze(x, y, (x + y) % 3 === 0 ? '#ffe066' : (x * y) % 4 === 0 ? '#ff5a2e' : '#ff9d2e');
+    g.aufmalen(e);
+    teil(e, (t) => { ellipse(t, 9, 8, 5, 3.6, RAMPEN.kupfer); rechteck(t, 13, 6, 3, 2, RAMPEN.kupfer); rechteck(t, 7, 3, 4, 2, RAMPEN.kupfer); });
+  }),
+  schrank: () => mach(18, 32, (e) => { // Küchenschrank, oben stehen Töpfe
+    teil(e, (t) => { rechteck(t, 1, 6, 16, 25, RAMPEN.holz); bretter(t, RAMPEN.holz, 1, 6, 16, 30, { senkrecht: true, breite: 8 }); });
+    const g = new Ebene(18, 32);
+    g.setze(7, 18, RAMPEN.gold[2]); g.setze(10, 18, RAMPEN.gold[2]);
+    g.aufmalen(e);
+    teil(e, (t) => { ellipse(t, 6, 4, 4, 2.6, RAMPEN.stahl); ellipse(t, 13, 4.5, 3, 2, RAMPEN.kupfer); });
+  }),
+  kamin: () => mach(32, 34, (e) => {
+    teil(e, (t) => { rechteck(t, 2, 4, 28, 29, R.stein); mauerwerk(t, R.stein, 2, 4, 29, 32, { hoehe: 5, breite: 7 }); rechteck(t, 0, 2, 32, 4, R.stein, { licht: 0.5 }); });
+    teil(e, (t) => { ellipse(t, 16, 22, 9, 7, RAMPEN.schwarz, { nurOben: 22 }); rechteck(t, 7, 22, 18, 11, RAMPEN.schwarz); }, { umriss: false });
+    teil(e, (t) => { for (const x of [11, 16, 21]) rechteck(t, x - 4, 29, 8, 3, RAMPEN.holz); });
+  }),
+  kleiderhaken: () => mach(16, 28, (e) => { // Brett mit Haken, eine grüne Jacke hängt daran
+    teil(e, (t) => { rechteck(t, 1, 2, 14, 4, RAMPEN.holz); for (const x of [4, 11]) t.setze(x, 6, RAMPEN.stahl[1]); });
+    teil(e, (t) => { vieleck(t, [[4, 6], [12, 6], [14, 20], [10, 20], [10, 24], [6, 24], [6, 20], [2, 20]], R.jacke); for (let y = 8; y < 22; y += 3) t.setze(8, y, stufe(R.jacke, 0.5)); t.setze(7, 12, RAMPEN.gold[2]); t.setze(7, 16, RAMPEN.gold[2]); });
+  }),
+  wiege: () => mach(18, 16, (e) => {
+    teil(e, (t) => { ellipse(t, 9, 11, 8, 4, RAMPEN.holz, { nurUnten: 9 }); rechteck(t, 1, 6, 16, 5, RAMPEN.holz); bretter(t, RAMPEN.holz, 1, 6, 16, 10, { senkrecht: true, breite: 3 }); });
+    teil(e, (t) => { rechteck(t, 2, 4, 14, 3, R.decke, { rund: 1 }); });
+  }),
+  teddyplatz: () => mach(16, 16, (e) => teil(e, (t) => teddy(t, 8, 9))), // Teddy liegt irgendwo im Zimmer
+  schaukelstuhl: () => mach(16, 24, (e) => {
+    teil(e, (t) => { for (let i = 0; i < 14; i++) t.setze(1 + i, 22 + Math.round(Math.sin(i / 4.5) * 1.2), RAMPEN.holz[0]); });
+    teil(e, (t) => { rechteck(t, 3, 1, 10, 3, RAMPEN.holz); rechteck(t, 3, 1, 2, 20, RAMPEN.holz); rechteck(t, 11, 1, 2, 20, RAMPEN.holz); rechteck(t, 2, 12, 12, 3, RAMPEN.holz, { licht: 0.4 }); });
+    teil(e, (t) => { rechteck(t, 5, 4, 6, 8, R.decke); });
+  }),
+  fenster: () => mach(16, 16, (e) => {
+    teil(e, (t) => { rechteck(t, 2, 2, 12, 12, RAMPEN.holz); rechteck(t, 4, 4, 8, 8, ['#5a8ac8', '#8ac0f0', '#d8f0ff']); });
+    const g = new Ebene(16, 16);
+    for (let i = 4; i < 12; i++) { g.setze(8, i, RAMPEN.holz[0]); g.setze(i, 8, RAMPEN.holz[0]); }
+    g.setze(5, 5, '#ffffff'); g.setze(6, 5, '#ffffff'); g.setze(5, 6, '#ffffff');
+    g.aufmalen(e);
+  }),
+  // --- Die Zwergenmine
+  lore: () => mach(26, 22, (e) => {
+    teil(e, (t) => { ellipse(t, 7, 18, 3, 3, RAMPEN.stahl); ellipse(t, 19, 18, 3, 3, RAMPEN.stahl); });
+    teil(e, (t) => { vieleck(t, [[1, 5], [25, 5], [22, 17], [4, 17]], RAMPEN.kupfer); for (const y of [8, 13]) for (let x = 2; x < 24; x++) if (t.voll(x, y)) t.setze(x, y, stufe(RAMPEN.kupfer, 0.5)); });
+    teil(e, (t) => { for (const [x, y] of [[8, 4], [13, 3], [18, 4]]) vieleck(t, [[x, y - 3], [x + 2, y], [x, y + 2], [x - 2, y]], ['#6a3aa8', '#a070e0', '#e0c8ff']); });
+  }),
+  balken: () => mach(16, 34, (e) => { // Stützbalken im Stollen
+    teil(e, (t) => { rechteck(t, 3, 4, 4, 29, RAMPEN.holz); rechteck(t, 9, 4, 4, 29, RAMPEN.holz); bretter(t, RAMPEN.holz, 3, 4, 12, 32, { senkrecht: true, breite: 6 }); });
+    teil(e, (t) => { rechteck(t, 0, 1, 16, 5, RAMPEN.holz, { licht: 0.4 }); bretter(t, RAMPEN.holz, 0, 1, 15, 5, { breite: 5 }); });
+  }),
   tuer: () => mach(16, 16, (e) => {
     teil(e, (t) => {
       rechteck(t, 2, 4, 12, 12, RAMPEN.holz);
@@ -920,7 +1037,7 @@ function kleinteile() {
   // neue Gegenstände (16 x 16)
   t.stein = mach(16, 16, (e) => teil(e, (x) => { ellipse(x, 8, 9, 6.5, 5, R.stein); ellipse(x, 6, 7, 2.5, 1.8, R.stein, { licht: 0.8 }); }));
   t.brett = mach(16, 16, (e) => teil(e, (x) => { rechteck(x, 1, 5, 14, 6, RAMPEN.holz, { rund: 1 }); for (let i = 2; i < 14; i += 5) x.setze(i, 8, RAMPEN.holz[0]); x.setze(3, 7, RAMPEN.stahl[1]); x.setze(12, 7, RAMPEN.stahl[1]); }));
-  t.seil = mach(16, 16, (e) => teil(e, (x) => { ellipse(x, 8, 8, 6.5, 6, RAMPEN.beige); ellipse(x, 8, 8, 3, 2.5, RAMPEN.beige, { licht: -0.9 }); x.setze(13, 13, RAMPEN.beige[0]); x.setze(14, 14, RAMPEN.beige[0]); }));
+  t.seil = mach(16, 16, (e) => teil(e, (x) => seilRolle(x, 7.5, 7, 7, 1.8, { ende: [[12, 10], [14, 14]] })));
   t.beeren = mach(16, 16, (e) => {
     teil(e, (x) => { ellipse(x, 8, 11, 7, 4, RAMPEN.holz); });
     teil(e, (x) => { for (const [bx, by] of [[5, 8], [8, 7], [11, 8], [6.5, 5.5], [9.5, 5.5], [8, 4]]) ellipse(x, bx, by, 1.8, 1.8, ['#2a1a6a', '#4a3a9a', '#8a7ae0']); });
@@ -952,6 +1069,17 @@ function kleinteile() {
     ellipse(x, 6.5, 6.5, 5, 5, RAMPEN.stahl); ellipse(x, 6.5, 6.5, 3.3, 3.3, ['#8ac8f0', '#b8e0ff', '#ffffff']);
     for (let i = 0; i < 5; i++) { x.setze(10 + i, 10 + i, RAMPEN.holz[1]); x.setze(11 + i, 10 + i, RAMPEN.holz[0]); }
   }));
+  // Gegenstände für Häuser und Mine
+  t.topf = mach(16, 16, (e) => teil(e, (x) => { ellipse(x, 8, 10, 6.5, 4.5, RAMPEN.stahl); rechteck(x, 1, 7, 3, 2, RAMPEN.stahl); rechteck(x, 12, 7, 3, 2, RAMPEN.stahl); ellipse(x, 8, 6.5, 6, 1.8, RAMPEN.stahl, { licht: -0.8 }); }));
+  t.jacke = mach(16, 16, (e) => teil(e, (x) => { vieleck(x, [[4, 2], [12, 2], [15, 9], [12, 9], [12, 15], [4, 15], [4, 9], [1, 9]], R.jacke); for (let y = 4; y < 15; y += 3) x.setze(8, y, stufe(R.jacke, 0.5)); x.setze(7, 6, RAMPEN.gold[2]); x.setze(7, 10, RAMPEN.gold[2]); }));
+  t.teddy = mach(16, 16, (e) => teil(e, (x) => teddy(x, 8, 8)));
+  t.tee = mach(16, 16, (e) => {
+    teil(e, (x) => { rechteck(x, 3, 7, 9, 7, RAMPEN.weiss, { rund: 1 }); ellipse(x, 13, 10, 2, 2.4, RAMPEN.weiss); rechteck(x, 4, 7, 7, 2, ['#6a3a10', '#9a5a20', '#c88040']); });
+    const g = new Ebene(16, 16);
+    for (const [px, py] of [[6, 5], [7, 4], [6, 3], [9, 5], [10, 4], [9, 2]]) g.setze(px, py, '#e8eef4');
+    g.aufmalen(e);
+  });
+  t.kristall = mach(16, 16, (e) => teil(e, (x) => { vieleck(x, [[8, 1], [12, 7], [8, 15], [4, 7]], ['#6a3aa8', '#a070e0', '#e0c8ff']); x.setze(7, 5, '#ffffff'); x.setze(7, 6, '#f0e4ff'); }));
   t.ausruf = mach(16, 16, (e) => teil(e, (x) => { rechteck(x, 6, 1, 4, 9, R.stoffRot, { rund: 1 }); ellipse(x, 8, 13, 2, 2, R.stoffRot); }));
   return t;
 }

@@ -11,9 +11,19 @@ import hoehle from './hoehle.js';
 import marktplatz from './marktplatz.js';
 import zuhause from './zuhause.js';
 import damm from './damm.js';
+import hausKueche from './haus_kueche.js';
+import hausStube from './haus_stube.js';
+import hausHedda from './haus_hedda.js';
+import mine from './mine.js';
 
 // Alle Karten des Spiels. Neue Karte: Datei anlegen und hier eintragen.
-export const KARTEN = { dorf, bibliothek, burghof, thronsaal, see, tal, wald, berg, gipfel, hoehle, marktplatz, zuhause, damm };
+export const KARTEN = {
+  dorf, bibliothek, burghof, thronsaal, see, tal, wald, berg, gipfel, hoehle, marktplatz, zuhause, damm,
+  haus_kueche: hausKueche, haus_stube: hausStube, haus_hedda: hausHedda, mine,
+};
+
+// Freiwillige Zusatz-Orte im Dorf: begehbare Häuser und die Mine
+const DORF_ZUSATZ = ['haus_kueche', 'haus_stube', 'haus_hedda', 'mine'];
 
 // Kapitel fassen Karten zusammen. Ein Kapitel ist geschafft, wenn alle Wünsche erfüllt sind.
 //   start       – auf welcher Karte es losgeht
@@ -27,6 +37,7 @@ export const KAPITEL = {
   1: {
     name: 'Die Zwergenfeste',
     karten: ['dorf', 'bibliothek'],
+    zusatz: DORF_ZUSATZ, // freiwillig: zählt nicht fürs Kapitel-Ende
     start: 'dorf',
     intro: 'intro',
     meilensteine: [
@@ -99,6 +110,7 @@ export const KAPITEL = {
   6: {
     name: 'Die Ehrengarde',
     karten: ['zuhause', 'damm'],
+    zusatz: ['dorf', 'bibliothek', ...DORF_ZUSATZ], // vom Zuhause aus zurück ins Dorf
     start: 'zuhause',
     intro: 'kapitel6',
   },

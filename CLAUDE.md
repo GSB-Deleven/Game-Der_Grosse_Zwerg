@@ -24,11 +24,18 @@ Online: https://gsb-deleven.github.io/Game-Der_Grosse_Zwerg/ · Artefakt: https:
 - `@claude` in Issues läuft über `.github/workflows/claude.yml` (Secret CLAUDE_CODE_OAUTH_TOKEN; Details im Wiki
   «Mitarbeit-und-Planung»). Es gibt keine geplanten Routinen mehr (gelöscht, um Tokens zu sparen).
 
+## Spielstand-Regeln (Davids Tochter spielt im Artefakt weiter)
+- Speicher-Schlüssel in `src/systeme/speichern.js` nie ändern. Wunsch-IDs (`karte:buchstabe`) bestehender Figuren
+  bleiben; neue Inhalte bekommen neue Buchstaben/Karten. Neue Felder im Spielstand nur mit Standardwert in
+  `leererSpielstand()` (wird beim Laden gemischt).
+- Vor dem Neu-Veröffentlichen des Artefakts David fragen, ob gerade jemand spielt (eine neue Version lädt offene Fenster neu).
+
 ## Testen
 - `npx vite preview --port 4173 --strictPort` (nach `npm run build`), dann
   `SPIEL_URL=http://localhost:4173/Game-Der_Grosse_Zwerg/ node tests/durchlauf.mjs`
   → Löser spielt wie ein Kind (folgt dem Pfeil) durch Kapitel 1–5, Abspann und alle Missionen (~12 Min.).
-  `KAPITEL=6` = nur Missionen. `node tests/controller.mjs` (gleiche SPIEL_URL) prüft den Weg nur mit Controller. Bildschirmfotos in `test-bilder/`. Hänger-Erkennung nach 90 s mit Foto `fehler.png`.
+  `KAPITEL=6` = nur Missionen. `node tests/controller.mjs` (gleiche SPIEL_URL) prüft den Weg nur mit Controller,
+  `node tests/zusatz.mjs` die freiwilligen Orte mit altem Spielstand (~8 Min.). Bildschirmfotos in `test-bilder/`. Hänger-Erkennung nach 90 s mit Foto `fehler.png`.
 - Im Browser: `?kapitel=N` springt in ein Kapitel, `?schnell` verkürzt Wartezeiten.
 - Bekannt: Einmal hing der Löser im dunklen Wald (Kapitel 3), danach nicht mehr reproduzierbar.
 
@@ -40,7 +47,7 @@ Online: https://gsb-deleven.github.io/Game-Der_Grosse_Zwerg/ · Artefakt: https:
 - `src/grafik/` – Figuren-Baukasten, Held (Kleider-Farben austauschbar), Welt-Objekte, Drache.
 - `src/texte/de.js` – Geschichten, Gegenstände, WEGWEISER-Sprüche.
 
-## Stand (01.10.2026)
+## Stand (04.10.2026)
 - Kapitel 1–5 fertig: Zwergenfeste → Königin → Reise → Drache Füürio → Flug & Fest (Ehrengarde).
 - Aufgaben-Vielfalt: Hühner einfangen (Oma Runa), Versteckis (Nella), Farben sortieren (Gärtnerin, Burghof),
   Bauaufgaben (Trittsteine, Brücke, Strickleiter), Wegweiser mit Running Gag (Erebor, Auenland … immer wieder Mordor).
@@ -51,6 +58,11 @@ Online: https://gsb-deleven.github.io/Game-Der_Grosse_Zwerg/ · Artefakt: https:
 - Grafik-Upgrade auf 90er-Look (Okt. 2026): 5-Ton-Schattierung, farbige Umrisse, detaillierter Held und
   Dorf-Zwerge, Bäume aus Blätter-Büscheln, neuer Boden, Ziegel/Holz/Mauerwerk, Atmosphäre-Partikel.
   Details und Ideen: `docs/GRAFIK-ROADMAP.md`. Vorschau: `galerie.html?nur=zwerge` bzw. `?nur=welt`.
+- Familientest (Okt. 2026): Herzen pro Ort als leere/volle Herzen (`ortHerzen` in Welt, Reihe in Oberflaeche).
+  Freiwillige Zusatz-Orte (`KAPITEL[n].zusatz`, Figuren `zusatz: true`): 3 begehbare Häuser (`haus_kueche`,
+  `haus_stube`, `haus_hedda`) und die Zwergenmine (`mine`) im Dorf; Ehrengarde kommt vom Zuhause zurück ins Dorf
+  (Ausgang `nurWennFertig`). Der Pfeil merkt sich Wünsche über Türen hinweg (`fremderWunsch`).
+  Test: `node tests/zusatz.mjs` (alter Ehrengarde-Spielstand → Dorf, Häuser, Mine).
 
 ## Offene Ideen
 - Issue #20: weitere Missionen (Mühle nach Sturm reparieren, Troll mit Zahnweh, Nebel im Wald/Laternen,

@@ -3,6 +3,8 @@
 
 export const PALETTE = {
   k: '#2b1d1a', // Umriss
+  q: '#6e5a78', // leeres Herz innen
+  Q: '#a892b0', // leeres Herz Glanz
   s: '#f2c29a', // Haut
   S: '#cf9272', // Haut Schatten
   e: '#2b1d1a', // Augen
@@ -130,6 +132,8 @@ const HERZ = [
   '................',
   '................',
 ];
+// Leeres Herz für die Herzreihe (noch nicht verdient): dunkles Inneres, heller Rand oben links
+const HERZ_LEER = HERZ.map((z) => z.replace(/[pP]/g, 'q').replace(/x/g, 'Q'));
 const FUNKE = ['.kk.', 'kyyk', 'kyyk', '.kk.'];
 
 export const SPRITES = {
@@ -138,5 +142,6 @@ export const SPRITES = {
   buch: BUCH,
   frucht: FRUCHT,
   herz: HERZ,
+  herz_leer: HERZ_LEER,
   funke_gold: FUNKE,
 };

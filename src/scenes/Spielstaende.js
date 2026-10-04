@@ -5,7 +5,7 @@ import { knopf } from '../systeme/knopf.js';
 import { spiele } from '../systeme/ton.js';
 import { bergKulisse } from '../systeme/kulisse.js';
 import {
-  ANZAHL_PLAETZE, PLATZ_BILDER, allePlaetze, leererSpielstand, loeschePlatz, speicherePlatz, spielzeitText,
+  ANZAHL_PLAETZE, PLATZ_BILDER, allePlaetze, ladePlatz, leererSpielstand, loeschePlatz, speicherePlatz, spielzeitText,
 } from '../systeme/speichern.js';
 import { KAPITEL } from '../levels/index.js';
 import { starteKapitel } from '../systeme/kapitel.js';
@@ -91,7 +91,7 @@ export class Spielstaende extends Phaser.Scene {
 
   loescheFokus() {
     if (this.dialog) return;
-    const stand = allePlaetze()[this.fokusPlatz];
+    const stand = ladePlatz(this.fokusPlatz);
     if (stand) { spiele('knopf'); this.frageLoeschen(this.fokusPlatz, stand); }
   }
 
@@ -119,7 +119,7 @@ export class Spielstaende extends Phaser.Scene {
   oeffnePlatz(nummer) {
     if (this.dialog) return;
     const c = this.karten.list[nummer];
-    const stand = allePlaetze()[nummer];
+    const stand = ladePlatz(nummer); // mit Standardwerten für Felder, die es früher noch nicht gab
     this.fokusPlatz = nummer;
     this.zeigeFokus();
     spiele('knopf');

@@ -61,7 +61,8 @@ Einen der drei Speicherplätze wählen und einen Namen eingeben. Das Spiel speic
 ![Spielstände](docs/bilder/spielstaende.png)
 
 **2. Wünsche erfüllen** 💭
-Über den Köpfen der Zwerge steht, was sie brauchen. Der Grosse Zwerg holt es und bringt es hin. Für jede Hilfe gibt es ein Herz.
+Über den Köpfen der Zwerge steht, was sie brauchen. Der Grosse Zwerg holt es und bringt es hin. Für jede Hilfe füllt sich ein Herz.
+Oben links stehen so viele leere Herzen, wie es am Ort zu verdienen gibt: Sind alle voll, ist hier alles geschafft.
 
 ![Die Zwergenfeste](docs/bilder/dorf.png)
 
@@ -97,16 +98,27 @@ Das Spiel füllt jeden Bildschirm aus. **Quer** liegt das Steuerkreuz rechts und
 
 ---
 
-## 🗺️ Fünf Kapitel, elf Orte – und dann die Ehrengarde
+## 🗺️ Fünf Kapitel, fünfzehn Orte – und dann die Ehrengarde
 
 | Kapitel | Orte | Was passiert |
 |---|---|---|
-| 1️⃣ **Die Zwergenfeste** | Dorf, Runen-Bibliothek | Essen, Wasser, Äpfel und Bücher, Hühner einfangen und Versteckis: Der Grosse Zwerg hilft allen. Die frechen Kinder werden Freunde, und der Bote der Königin kommt. |
+| 1️⃣ **Die Zwergenfeste** | Dorf, Runen-Bibliothek, *3 Häuser, Mine* | Essen, Wasser, Äpfel und Bücher, Hühner einfangen und Versteckis: Der Grosse Zwerg hilft allen. Die frechen Kinder werden Freunde, und der Bote der Königin kommt. Freiwillig: in die Häuser gehen (Suppe kochen, Teddy suchen, Tee, Torvis Jacke) und in die Zwergenmine (Fackel, Kristalle, Leuchtpilze). |
 | 2️⃣ **Der Ruf der Königin** | Burghof, Thronsaal | Pony Flocke hat Hunger, die Gärtnerin braucht eine rote, gelbe und blaue Blume. Königin Brunhild erzählt vom Drachen. |
 | 3️⃣ **Die grosse Reise** | See, Tal, Wald, Berg | Trittsteine über den See, eine Brücke übers Tal, Glühwürmchen im dunklen Wald, eine Strickleiter und Mut für die ängstlichen Zwerge |
 | 4️⃣ **Der Drache** | Gipfel, Höhle | Die Fackel geht aus, zwei leuchtende Augen … *«Halt, lieber Drache, ich will dir nichts tun!»* Füürio wird ein Freund. |
 | 5️⃣ **Der Flug und das Fest** | Flug, Marktplatz | Auf Füürio über das ganze Reich bis zum Schloss. Die Königin ernennt beide zu Ehrenmitgliedern der Garde. |
-| 🛡️ **Die Ehrengarde** | Zuhause, Missionen | Nach dem Abspann geht es weiter: Missionen am Missionsbrett (Staudamm bauen, Post fliegen …). Jede Mission baut das gemeinsame Zuhause aus (Zelt → Holzhütte → Steinhaus) oder bringt neue Kleider. |
+| 🛡️ **Die Ehrengarde** | Zuhause, Missionen | Nach dem Abspann geht es weiter: Missionen am Missionsbrett (Staudamm bauen, Post fliegen …). Jede Mission baut das gemeinsame Zuhause aus (Zelt → Holzhütte → Steinhaus) oder bringt neue Kleider. Ein Weg führt zurück ins Dorf, zu den Häusern und zur Mine. |
+
+<table>
+<tr>
+<td width="50%"><img src="docs/bilder/haus.png" alt="In der Küche von Opa Balin"></td>
+<td width="50%"><img src="docs/bilder/mine.png" alt="Die Zwergenmine"></td>
+</tr>
+<tr>
+<td align="center">Begehbare Häuser: Opa Balins Küche</td>
+<td align="center">Die Zwergenmine</td>
+</tr>
+</table>
 
 ![Thronsaal der Königin](docs/bilder/thronsaal.png)
 
@@ -172,8 +184,8 @@ Die Figuren setzt ein **Baukasten** aus Teilen zusammen (Stiefel, Rumpf, Bart, H
 <table>
 <tr>
 <td width="33%" align="center"><b>26.09. · Prototyp</b><br><img src="docs/verlauf/2026-09-26-prototyp/dorf.png" alt="Prototyp"></td>
-<td width="33%" align="center"><b>27.09. · Alle Kapitel</b><br><img src="docs/verlauf/2026-09-27-alle-kapitel/dorf.png" alt="Alle Kapitel"></td>
-<td width="33%" align="center"><b>01.10. · 90er-Look</b><br><img src="docs/bilder/dorf.png" alt="90er-Look"></td>
+<td width="33%" align="center"><b>01.10. · 90er-Look</b><br><img src="docs/verlauf/2026-10-01-90er-look/dorf.png" alt="90er-Look"></td>
+<td width="33%" align="center"><b>04.10. · Häuser und Mine</b><br><img src="docs/bilder/haus.png" alt="Häuser und Mine"></td>
 </tr>
 </table>
 

@@ -12,6 +12,14 @@ Im Bergtal wohnen die Zwerge in Steinhäusern. Der Grosse Zwerg hilft allen – 
 - **Bücher** vom obersten Regal der Runen-Bibliothek
 
 Die frechen Kinder necken ihn zuerst («Du bist doch gar kein Zwerg!») – und werden seine Freunde.
+Freiwillig (zählt nicht fürs Weiterkommen, nur für die Herzen am Ort):
+| Ort | Aufgabe |
+|---|---|
+| Küche (Haus oben links) | Opa Balin kocht Suppe: Kochtopf aus dem Schrank, dann Essen vom Markt |
+| Stube (Haus rechts) | Baby Fili sucht seinen Teddy · Bauer Torvi friert draussen – seine Jacke hängt drinnen |
+| Grossmutter Hedda (Haus unten links) | Tee vom Herd |
+| Die Zwergenmine | Dori braucht eine Fackel, Gimla 3 Kristalle für die Lore, Nori Leuchtpilze |
+
 Am Ende bringt der **Bote der Königin** eine Nachricht: Ein Drache wohnt auf dem höchsten Berg.
 
 ## Kapitel 2 – Der Ruf der Königin
@@ -43,6 +51,7 @@ Nach dem Abspann geht es weiter: Der Grosse Zwerg und Füürio wohnen zusammen g
 Am Anfang ist ihr **Zuhause** nur ein Zelt. Am **Missionsbrett** wählt man eine Mission (Bildkarten, werden vorgelesen).
 Jede Mission bringt eine **Belohnung**: Das Zuhause wird grösser (Zelt → Holzhütte → Steinhaus) oder es gibt neue Kleider
 (in der **roten Kiste** kann man sich umziehen). Geschaffte Missionen haben einen Haken und lassen sich nochmals spielen.
+Vom Zuhause führt links ein Weg zurück in die **Zwergenfeste** – mit den Häusern und der Mine.
 
 | Mission | Was passiert | Belohnung |
 |---|---|---|

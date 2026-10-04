@@ -6,7 +6,7 @@ import '@fontsource/press-start-2p/latin-400.css';
 import { Boot } from './scenes/Boot.js';
 import { vollbildUmschalten } from './systeme/vollbild.js';
 import { passeFormAn } from './systeme/bildschirm.js';
-import { ladeEinstellungen, speichereEinstellungen } from './systeme/speichern.js';
+import { ladeEinstellungen, speichereEinstellungen, sichere } from './systeme/speichern.js';
 import { Titel } from './scenes/Titel.js';
 import { Geschichte } from './scenes/Geschichte.js';
 import { Welt } from './scenes/Welt.js';
@@ -126,6 +126,19 @@ spiel.step = function (zeit, delta) {
 };
 window.addEventListener('error', (e) => zeigeFehler(e.error || e.message));
 window.addEventListener('unhandledrejection', (e) => zeigeFehler(e.reason));
+
+// Speichern, wenn das Fenster verdeckt oder geschlossen wird (z. B. neue Artefakt-Version, App gewechselt),
+// damit nichts vom Spielstand verloren geht
+function sichernBeimVerlassen() {
+  try {
+    const welt = spiel.scene.getScene('Welt');
+    if (welt?.sys.isActive() || welt?.sys.isPaused()) welt.sichern();
+    // sonst nur mitten im Spiel (nicht auf dem Titelbild oder bei «Wer spielt?», dort wurde evtl. gerade gelöscht)
+    else if (['Flug', 'Missionen', 'KapitelEnde', 'Geschichte', 'Abspann'].some((k) => spiel.scene.isActive(k))) sichere(spiel.registry);
+  } catch (e) { /* egal – dann eben beim nächsten Mal */ }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sichernBeimVerlassen(); });
+window.addEventListener('pagehide', sichernBeimVerlassen);
 
 // Für automatische Tests und zum Ausprobieren in der Browser-Konsole
 window.spiel = spiel;

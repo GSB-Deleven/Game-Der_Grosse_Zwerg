@@ -52,7 +52,7 @@ Neue Aufgaben: Hühner einfangen, Versteckis, Blumen nach Farben sortieren, Wegw
 
 ---
 
-## 4 · Der 90er-Look — 01.10.2026 (heute)
+## 4 · Der 90er-Look — 01.10.2026
 
 Mehr Details, wie bei späten SNES- und Game-Boy-Advance-Spielen: 5 statt 3 Farbtöne pro Farbe,
 farbige Umrisse, Bärte mit Strähnen, Helme mit Glanz, Bäume aus vielen Blätter-Büscheln, Gras mit Klee,
@@ -61,15 +61,34 @@ Alles weiterhin im Code gemalt.
 
 | Im Dorf | Der dunkle Wald |
 |---|---|
-| ![Dorf 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/dorf.png) | ![Wald 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/wald.png) |
+| ![Dorf 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/verlauf/2026-10-01-90er-look/dorf.png) | ![Wald 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/verlauf/2026-10-01-90er-look/wald.png) |
 | **Am See** | **Das Fest** |
-| ![See 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/see.png) | ![Marktplatz 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/marktplatz.png) |
+| ![See 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/verlauf/2026-10-01-90er-look/see.png) | ![Marktplatz 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/verlauf/2026-10-01-90er-look/marktplatz.png) |
 
-![Figuren 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/figuren.png)
+![Figuren 01.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/verlauf/2026-10-01-90er-look/figuren.png)
 
 **03.10.2026 · Der Drache heisst jetzt Füürio.** Auf Wunsch der Familie trägt Glutherz einen neuen Namen.
 Dazu: Der Xbox-Controller funktioniert jetzt überall, auch bei «Wer spielt?», und den Namen eines neuen
 Spiels ändert man über ein gut sichtbares Kästchen.
+
+---
+
+## 5 · Häuser, Mine und Herzen — 04.10.2026 (heute)
+
+Nach dem ersten Familientest: Drei Häuser in der Zwergenfeste kann man jetzt betreten, eingerichtet mit Bett,
+Herd, Kamin, Schrank, Wiege und Schaukelstuhl. Dort gibt es Aufgaben (Suppe kochen, Teddy suchen, Tee), und Bauer
+Torvi draussen braucht seine Jacke von drinnen. Die **Zwergenmine** ist ein eigener Ort mit Schienen, Loren und
+leuchtenden Kristallen. Statt einer Zahl zeigen **leere Herzen**, wie viel es an einem Ort zu tun gibt; jede Hilfe
+füllt eins. Dazu: Das Seil sieht wie ein Seil aus, Füürios Augen und Kopf sind ganz zu sehen, und der Spielstand
+bleibt bei neuen Versionen erhalten.
+
+| Opa Balins Küche | Die Zwergenmine |
+|---|---|
+| ![Küche 04.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/haus.png) | ![Mine 04.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/mine.png) |
+| **Im Dorf (Herzen oben links)** | **Am See** |
+| ![Dorf 04.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/dorf.png) | ![See 04.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/see.png) |
+
+![Figuren 04.10.](https://raw.githubusercontent.com/GSB-Deleven/Game-Der_Grosse_Zwerg/main/docs/bilder/figuren.png)
 
 ---
 

@@ -11,6 +11,8 @@
 - Der **gelbe Pfeil** zeigt immer, wohin es als Nächstes geht – zur Figur oder dorthin, wo man das Gewünschte holt.
 - **Hingehen und helfen:** Figur oder Gegenstand antippen – der Grosse Zwerg läuft selbst hin.
   Oder selbst laufen und den Herz-Knopf / die Leertaste drücken.
+- **Herzen oben links:** So viele leere Herzen, wie es an diesem Ort zu verdienen gibt. Jede Hilfe füllt eins –
+  sind alle voll, hüpfen sie: Hier ist alles geschafft.
 - Der Grosse Zwerg **trägt** immer ein Ding über dem Kopf. Bringt man es der richtigen Figur, gibt es ein **Herz**.
 - Manche Aufgaben brauchen mehrere Dinge (z. B. **3 Steine** für Trittsteine) – die Blase zeigt «1/3».
 - Manche Figuren brauchen nur **Mut** (Herz in der Blase) – einfach mit ihnen reden.
@@ -23,6 +25,11 @@
 - Im **Menü** genügt ein Tipp neben das Fenster, um weiterzuspielen.
 - **Nach dem Abspann** geht es weiter mit der **Ehrengarde**: Am Missionsbrett eine Mission antippen (sie wird vorgelesen),
   nochmals tippen oder «Los!» – nach jeder Mission wird das Zuhause schöner oder es gibt neue Kleider (rote Kiste).
+- **Häuser und Mine (freiwillig):** In drei Häuser der Zwergenfeste kann man hineingehen (Tür unten in der Mitte),
+  in die Küche von Opa Balin, die Stube mit Baby Fili und zu Grossmutter Hedda. Dort gibt es Aufgaben – und Bauer Torvi
+  draussen friert: Seine Jacke hängt drinnen am Haken. In der **Zwergenmine** (Eingang im Dorf) suchen Dori, Gimla und
+  Nori Fackel, Kristalle und Leuchtpilze. Alles freiwillig: Die Geschichte geht auch ohne weiter.
+  In der Ehrengarde führt vom Zuhause ein Weg zurück ins Dorf.
 - Bei besonderen Momenten gibt es eine grosse **Einblendung mit Konfetti**.
 
 Es gibt keine Gegner, man kann nichts falsch machen und nichts verlieren.

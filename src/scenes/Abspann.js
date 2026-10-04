@@ -17,6 +17,8 @@ export class Abspann extends Phaser.Scene {
   create() {
     mittig(this);
     this.knopfDa = false;
+    this.weg = false;
+    this.auswahl = null;
     const stand = this.registry.get('stand');
     stand.fertig = true;
     sichere(this.registry);
@@ -79,22 +81,58 @@ export class Abspann extends Phaser.Scene {
     this.time.delayedCall(1200, () => sprich('Der Grosse Zwerg. Eine Geschichte über Mut, Freundschaft und ein grosses Herz.'));
 
     knopf(this, 880, 30, { text: 'Weiter', breite: 140, hoehe: 44, groesse: 20, farbe: 0x5c5460 }, () => this.zeigeKnopf());
+
+    // Tastatur und Controller: erst überspringt Leertaste/Enter/A den Lauftext, dann wählen ↑/↓ und bestätigen
+    const k = this.input.keyboard;
+    ['SPACE', 'ENTER'].forEach((t) => k.on(`keydown-${t}`, () => this.bestaetige()));
+    ['UP', 'LEFT', 'W'].forEach((t) => k.on(`keydown-${t}`, () => this.waehle(-1)));
+    ['DOWN', 'RIGHT', 'S'].forEach((t) => k.on(`keydown-${t}`, () => this.waehle(1)));
+    this.input.gamepad?.on('down', (pad, b) => {
+      if (b.index === 12 || b.index === 14) this.waehle(-1);
+      else if (b.index === 13 || b.index === 15) this.waehle(1);
+      else this.bestaetige();
+    });
+  }
+
+  bestaetige() {
+    if (!this.knopfDa) { this.zeigeKnopf(); return; }
+    this.auswahl?.[this.gewaehlt]?.aktion();
+  }
+
+  waehle(d) {
+    if (!this.auswahl) return;
+    this.gewaehlt = (this.gewaehlt + d + this.auswahl.length) % this.auswahl.length;
+    spiele('knopf');
+    this.zeigeAuswahl();
+  }
+
+  zeigeAuswahl() {
+    const { k } = this.auswahl[this.gewaehlt];
+    this.rahmen?.destroy();
+    this.rahmen = this.add.rectangle(k.x, k.y, k.width + 18, k.height + 16).setStrokeStyle(4, 0xffffff).setFillStyle();
+    this.tweens.add({ targets: this.rahmen, alpha: 0.4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
   zeigeKnopf() {
     if (this.knopfDa) return;
     this.knopfDa = true;
-    const k = knopf(this, 480, 300, { text: 'Weiter: Die Ehrengarde', breite: 440, hoehe: 76, groesse: 30, icon: 'herz', iconScale: 2.5 }, () => this.weiterZurGarde());
-    const t = knopf(this, 480, 400, { text: 'Zum Titelbild', breite: 300, hoehe: 56, groesse: 24, farbe: 0x5c5460 }, () => {
+    const zumTitel = () => {
       verstummen();
       stoppeMusik();
       this.scene.start('Titel');
-    });
+    };
+    const k = knopf(this, 480, 300, { text: 'Weiter: Die Ehrengarde', breite: 440, hoehe: 76, groesse: 30, icon: 'herz', iconScale: 2.5 }, () => this.weiterZurGarde());
+    const t = knopf(this, 480, 400, { text: 'Zum Titelbild', breite: 300, hoehe: 56, groesse: 24, farbe: 0x5c5460 }, zumTitel);
     [k, t].forEach((b) => { b.setScale(0); this.tweens.add({ targets: b, scale: 1, duration: 400, ease: 'Back.easeOut' }); });
+    this.auswahl = [{ k, aktion: () => this.weiterZurGarde() }, { k: t, aktion: zumTitel }];
+    this.gewaehlt = 0;
+    this.time.delayedCall(420, () => this.zeigeAuswahl());
   }
 
   // Nach dem Happy End geht es weiter: Missionen der Ehrengarde
   weiterZurGarde() {
+    if (this.weg) return;
+    this.weg = true;
     verstummen();
     stoppeMusik();
     starteKapitel(this);

@@ -57,6 +57,11 @@ export const GEGENSTAENDE = {
   blume_gelb: { holen: 'Eine gelbe Blume. Gelb wie die Sonne!' },
   blume_blau: { holen: 'Eine blaue Blume. Blau wie der Himmel!' },
   holz: { holen: 'Ein dicker Baumstamm. Hau ruck!' },
+  topf: { holen: 'Ein grosser Kochtopf!' },
+  jacke: { holen: 'Eine warme, grüne Jacke!' },
+  teddy: { holen: 'Da ist ja der Teddy!' },
+  tee: { holen: 'Ein heisser Tee. Vorsichtig tragen!' },
+  kristall: { holen: 'Ein funkelnder Kristall!' },
 };
 
 // Wegweiser: jedes Mal ein anderes Ziel (und Mordor kommt immer wieder …)

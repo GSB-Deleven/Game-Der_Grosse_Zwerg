@@ -9,6 +9,7 @@
 | Im Menü wählen | Pfeiltasten + Enter, ←/→ wechselt den Reiter | Steuerkreuz + A | antippen |
 | Spielstand wählen («Wer spielt?») | ←/→ + Enter, Esc = zurück, Entf = löschen | Steuerkreuz/Stick + A, B = zurück, X = löschen | antippen |
 | Bild für neues Spiel | ←/→, Enter = «Los geht's!» | Steuerkreuz/Stick, A = «Los geht's!» | antippen |
+| Abspann | Leertaste überspringt, ↑/↓ wählt, Leertaste/Enter bestätigt | A überspringt, Steuerkreuz wählt, A bestätigt | antippen |
 | Geschichte weiterblättern | Leertaste / Enter | beliebiger Knopf | antippen |
 | Flug (Kapitel 5) | Pfeil hoch/runter | Stick hoch/runter | oben oder unten antippen/ziehen |
 
